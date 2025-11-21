@@ -1,6 +1,6 @@
 package com.derinkaras.recipebook.dto.user;
 
-public class UserProfileDto {
+public class UpdateUserProfileRequest {
     String firstName;
     String lastName;
     String bio;

@@ -1,17 +1,18 @@
 package com.derinkaras.recipebook.service;
 
 import com.derinkaras.recipebook.dto.recipe.RecipeDto;
-import com.derinkaras.recipebook.dto.user.CreateUserRequest;
-import com.derinkaras.recipebook.dto.user.UpdateUserRequest;
-import com.derinkaras.recipebook.dto.user.UserDto;
+import com.derinkaras.recipebook.dto.user.*;
 import com.derinkaras.recipebook.exception.DuplicateResourceException;
 import com.derinkaras.recipebook.exception.ResourceNotFoundException;
 import com.derinkaras.recipebook.mapper.RecipeMapper;
 import com.derinkaras.recipebook.mapper.UserMapper;
+import com.derinkaras.recipebook.mapper.UserProfileMapper;
 import com.derinkaras.recipebook.model.User;
+import com.derinkaras.recipebook.model.UserProfile;
 import com.derinkaras.recipebook.respository.RecipeRepository;
 import com.derinkaras.recipebook.respository.UserRepository;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.Null;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -47,7 +48,12 @@ public class UserService {
         // Hash the raw password before setting
         String hashed = passwordEncoder.encode(user.getPassword());
         userEntity.setPassword(hashed);
+
+
         User saved =  userRepository.save(userEntity);
+
+
+
         return UserMapper.toUserDto(saved);
     }
 
@@ -126,6 +132,49 @@ public class UserService {
                 .map(recipe -> RecipeMapper.toDto(recipe))
                 .toList();
     }
+
+    // A User and a UserProfile are two different resources. Therefor they will have different controllers but
+    // will have the same service
+    public UserProfileDto createUserProfile(Long userId, CreateUserProfileRequest req) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+        UserProfile profile = new UserProfile();
+        profile.setFirstName(req.getFirstName());
+        profile.setLastName(req.getLastName());
+        if (req.getBio() != null) {
+            profile.setBio(req.getBio());
+        }
+        profile.setUser(user);
+        user.setProfile(profile);
+
+        // We save the USER (not the profile) because User is the aggregate root.
+        // With cascade = ALL on user.userProfile, saving the user automatically
+        // saves the linked UserProfile. Cascade does NOT auto-create a profile;
+        // it only persists the profile IF we attach it to the user. Therefor we
+        // must: (1) create profile, (2) link both sides, (3) save the user.
+        User saved = userRepository.save(user);
+        return UserProfileMapper.userProfileToDto(saved.getProfile());
+    }
+
+    public UserProfileDto updateUserProfile(Long userId, UpdateUserProfileRequest req) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+
+        if (req.getFirstName() != null) {
+            user.getProfile().setFirstName(req.getFirstName());
+        }
+        if (req.getLastName() != null) {
+            user.getProfile().setLastName(req.getLastName());
+        }
+        if (req.getBio() != null) {
+            user.getProfile().setBio(req.getBio());
+        }
+        User saved = userRepository.save(user);
+        return UserProfileMapper.userProfileToDto(saved.getProfile());
+    }
+
+
+
 
 
 }

@@ -49,6 +49,9 @@ public class User {
     //   - Cascade ensures child follows parent’s lifecycle
     //   - Orphan removal deletes the profile if it’s no longer attached
 
+
+    // This cascade also makes it so when the user is .save( ) in the user repo it will cascade that to the
+    // UserProfile table as well
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserProfile profile;
 
