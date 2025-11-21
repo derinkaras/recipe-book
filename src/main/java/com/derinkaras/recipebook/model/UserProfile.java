@@ -2,6 +2,8 @@ package com.derinkaras.recipebook.model;
 
 import jakarta.persistence.*;
 
+@Entity
+
 public class UserProfile {
 
     @Id
