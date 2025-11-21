@@ -124,7 +124,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handlerOther(Exception ex) {
         Map<String, Object> body = new HashMap<>();
@@ -134,5 +133,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<Map<String, Object>> handleDuplicate(DuplicateResourceException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("error", "DUPLICATE");
+        body.put("message", ex.getMessage());
+        // This will be a 409 conflict status code
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
 
 }

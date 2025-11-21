@@ -1,4 +1,4 @@
-package com.derinkaras.recipebook.dto;
+package com.derinkaras.recipebook.dto.recipe;
 
 import java.util.List;
 

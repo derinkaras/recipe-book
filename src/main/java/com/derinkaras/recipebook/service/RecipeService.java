@@ -1,7 +1,7 @@
 package com.derinkaras.recipebook.service;
-import com.derinkaras.recipebook.dto.CreateRecipeRequest;
-import com.derinkaras.recipebook.dto.RecipeDto;
-import com.derinkaras.recipebook.dto.UpdateRecipeRequest;
+import com.derinkaras.recipebook.dto.recipe.CreateRecipeRequest;
+import com.derinkaras.recipebook.dto.recipe.RecipeDto;
+import com.derinkaras.recipebook.dto.recipe.UpdateRecipeRequest;
 import com.derinkaras.recipebook.exception.ResourceNotFoundException;
 import com.derinkaras.recipebook.mapper.RecipeMapper;
 import com.derinkaras.recipebook.model.Ingredient;
@@ -11,13 +11,11 @@ import com.derinkaras.recipebook.respository.IngredientRepository;
 import com.derinkaras.recipebook.respository.RecipeRepository;
 import com.derinkaras.recipebook.respository.UserRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -33,6 +31,7 @@ public class RecipeService {
         this.ingredientRepository = ingredientRepository;
     }
 
+    // Find by something which is not unique may return many results
     public List<RecipeDto> getAll(Long ownerId) {
         List<Recipe> recipes = (ownerId != null) ?
                 recipeRepository.findByOwnerId(ownerId) :

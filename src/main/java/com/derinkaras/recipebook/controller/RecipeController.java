@@ -1,19 +1,18 @@
 package com.derinkaras.recipebook.controller;
 
 
-import com.derinkaras.recipebook.dto.CreateRecipeRequest;
-import com.derinkaras.recipebook.dto.RecipeDto;
-import com.derinkaras.recipebook.dto.UpdateRecipeRequest;
+import com.derinkaras.recipebook.dto.recipe.CreateRecipeRequest;
+import com.derinkaras.recipebook.dto.recipe.RecipeDto;
+import com.derinkaras.recipebook.dto.recipe.UpdateRecipeRequest;
 import com.derinkaras.recipebook.service.RecipeService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/recipes")
+@RequestMapping("api/v1/recipe")
 public class RecipeController {
     private final RecipeService recipeService;
 
@@ -26,6 +25,8 @@ public class RecipeController {
         return recipeService.getAll(ownerId);
     }
 
+
+    // Use @PathVariable when the value identifies a specific resource.
     @GetMapping("/{id}")
     public RecipeDto getOne(@PathVariable Long id){
         return recipeService.getById(id);
@@ -40,6 +41,7 @@ public class RecipeController {
     // and SKIPS the normal "return ResponseEntity.ok(...)" below.
     //
     // In short: invalid request → controller does NOT run → GlobalExceptionHandler returns 400.
+    // Use @RequestParam when the value filters, sorts, or modifies the request.
     @PostMapping
     public ResponseEntity<RecipeDto> create(@Valid @RequestBody CreateRecipeRequest recipe) {
         RecipeDto created = recipeService.create(recipe);

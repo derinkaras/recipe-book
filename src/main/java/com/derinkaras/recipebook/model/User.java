@@ -19,6 +19,10 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
+    @Column(nullable = false)
+    private String password;
+
+
     private LocalDateTime createdDate = LocalDateTime.now();
 
     // This entity participates in a one-to-one relationship with UserProfile.
@@ -54,6 +58,14 @@ public class User {
 
     public Long getId() {
         return id;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public void setId(Long id) {
