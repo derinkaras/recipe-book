@@ -41,7 +41,7 @@ public class UserController {
     public List<RecipeDto> getUserRecipes(
             @RequestParam Long userId
     ) {
-        return this.userService.getUserRecipes(userId);
+        return userService.getUserRecipes(userId);
     }
 
 

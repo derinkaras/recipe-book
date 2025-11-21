@@ -21,6 +21,7 @@ import java.util.List;
 
 @Service
 @Transactional
+
 public class UserService {
 
     private UserRepository userRepository;
@@ -124,6 +125,34 @@ public class UserService {
     //    into its corresponding DTO.
     //
     // This is why getUserRecipes() can rely on user.getRecipes() without additional logic.
+
+    // NOTE on one-to-many (User → Recipes):
+    // You only set the relationship on the owning side (recipe.setOwner(user)).
+    // Hibernate uses the FK (recipe.owner_id) to rebuild user.getRecipes() by querying the DB.
+    //
+    // The ONLY time "not adding the recipe to user.getRecipes()" is a problem:
+    // → In the SAME in-memory User object where you just created and saved a Recipe.
+    //   Saving the Recipe updates the DB, but DOES NOT update the existing User.recipes list.
+    //   You must reload the User or manually add the recipe to keep the in-memory graph in sync.
+    //
+    // Example:
+    //
+    // User user = userRepository.findById(1L).get();   // loads recipes = [A, B]
+    //
+    // Recipe r = new Recipe();
+    // r.setOwner(user);
+    // recipeRepository.save(r);                        // DB now has [A, B, C]
+    //
+    // user.getRecipes();                               // still [A, B] in memory (NOT auto-updated)
+    //
+    // Solution options:
+    // 1) Reload the user: user = userRepository.findById(1L).get();  // now gets [A, B, C]
+    // 2) Or manually sync: user.getRecipes().add(r);
+    //
+    // In all normal API cases (new request → fresh fetch), user.getRecipes() is always correct.
+
+
+
     public List<RecipeDto> getUserRecipes(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));
@@ -145,6 +174,8 @@ public class UserService {
             profile.setBio(req.getBio());
         }
         profile.setUser(user);
+
+        // check out notes for why this is not needed but will include anyways
         user.setProfile(profile);
 
         // We save the USER (not the profile) because User is the aggregate root.
